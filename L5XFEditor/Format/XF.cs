@@ -7,10 +7,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using L5XFEditor.IO;
 using L5XFEditor.Compression;
+using System;
 
 namespace L5XFEditor.Format
 {
-    public class XF
+    public class XF : IDisposable
     {
         Bitmap bmp;
         public Bitmap image_0;
@@ -198,7 +199,7 @@ namespace L5XFEditor.Format
                 //Table1
                 xfheader.table1Offset = (short)(bw.BaseStream.Position >> 2);
                 xfheader.table1EntryCount = (short)dicGlyphLarge.Count;
-                bw.WriteMultipleCompressed(dicGlyphLarge.Select(d=>d.Value), t1Comp);
+                bw.WriteMultipleCompressed(dicGlyphLarge.Select(d => d.Value), t1Comp);
                 bw.WriteAlignment(4);
 
                 //Table2
@@ -253,5 +254,10 @@ namespace L5XFEditor.Format
             return x + charMap.CharWidth;
         }
 
+        public void Dispose()
+        {
+            xpck.Close();
+            xi = null;
+        }
     }
 }

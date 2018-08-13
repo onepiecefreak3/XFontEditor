@@ -29,26 +29,15 @@
         private void InitializeComponent()
         {
             this.largeDict = new System.Windows.Forms.DataGridView();
-            this.Character = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ImageID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.X = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Width = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Height = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuTool = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extractToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.smallDict = new System.Windows.Forms.DataGridView();
-            this.Character2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ImageID2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.X2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Y2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Width2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Height2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.imgSelector = new System.Windows.Forms.ComboBox();
             this.searchTextBox1 = new System.Windows.Forms.TextBox();
             this.coordinatesLabel = new System.Windows.Forms.Label();
@@ -59,7 +48,20 @@
             this.searchTextBox2 = new System.Windows.Forms.TextBox();
             this.searchCharLabel1 = new System.Windows.Forms.Label();
             this.searchCharLabel2 = new System.Windows.Forms.Label();
-            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.Character = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ImageID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.X = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Y = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Width = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Height = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.GlyphWidth = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Character2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ImageID2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.X2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Y2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Width2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Height2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.GlyphWidth2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.largeDict)).BeginInit();
             this.menuTool.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.smallDict)).BeginInit();
@@ -77,54 +79,12 @@
             this.X,
             this.Y,
             this.Width,
-            this.Height});
+            this.Height,
+            this.GlyphWidth});
             this.largeDict.Location = new System.Drawing.Point(539, 54);
             this.largeDict.Name = "largeDict";
             this.largeDict.Size = new System.Drawing.Size(520, 240);
             this.largeDict.TabIndex = 0;
-            // 
-            // Character
-            // 
-            this.Character.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Character.HeaderText = "Character";
-            this.Character.Name = "Character";
-            this.Character.ReadOnly = true;
-            this.Character.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // ImageID
-            // 
-            this.ImageID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ImageID.HeaderText = "Image";
-            this.ImageID.Name = "ImageID";
-            this.ImageID.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // X
-            // 
-            this.X.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.X.HeaderText = "X";
-            this.X.Name = "X";
-            this.X.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // Y
-            // 
-            this.Y.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Y.HeaderText = "Y";
-            this.Y.Name = "Y";
-            this.Y.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // Width
-            // 
-            this.Width.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Width.HeaderText = "Width";
-            this.Width.Name = "Width";
-            this.Width.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // Height
-            // 
-            this.Height.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Height.HeaderText = "Height";
-            this.Height.Name = "Height";
-            this.Height.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
             // menuTool
             // 
@@ -161,6 +121,13 @@
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.closeToolStripMenuItem.Text = "&Close";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // imageToolStripMenuItem
             // 
@@ -199,54 +166,12 @@
             this.X2,
             this.Y2,
             this.Width2,
-            this.Height2});
+            this.Height2,
+            this.GlyphWidth2});
             this.smallDict.Location = new System.Drawing.Point(539, 326);
             this.smallDict.Name = "smallDict";
             this.smallDict.Size = new System.Drawing.Size(520, 240);
             this.smallDict.TabIndex = 2;
-            // 
-            // Character2
-            // 
-            this.Character2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Character2.HeaderText = "Character";
-            this.Character2.Name = "Character2";
-            this.Character2.ReadOnly = true;
-            this.Character2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // ImageID2
-            // 
-            this.ImageID2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.ImageID2.HeaderText = "Image";
-            this.ImageID2.Name = "ImageID2";
-            this.ImageID2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // X2
-            // 
-            this.X2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.X2.HeaderText = "X";
-            this.X2.Name = "X2";
-            this.X2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // Y2
-            // 
-            this.Y2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Y2.HeaderText = "Y";
-            this.Y2.Name = "Y2";
-            this.Y2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // Width2
-            // 
-            this.Width2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Width2.HeaderText = "Width";
-            this.Width2.Name = "Width2";
-            this.Width2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            // 
-            // Height2
-            // 
-            this.Height2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Height2.HeaderText = "Height";
-            this.Height2.Name = "Height2";
-            this.Height2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
             // imgSelector
             // 
@@ -362,12 +287,105 @@
             this.searchCharLabel2.TabIndex = 11;
             this.searchCharLabel2.Text = "Search Character:";
             // 
-            // closeToolStripMenuItem
+            // Character
             // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.closeToolStripMenuItem.Text = "&Close";
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+            this.Character.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Character.HeaderText = "Character";
+            this.Character.Name = "Character";
+            this.Character.ReadOnly = true;
+            this.Character.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // ImageID
+            // 
+            this.ImageID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ImageID.HeaderText = "Image";
+            this.ImageID.Name = "ImageID";
+            this.ImageID.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // X
+            // 
+            this.X.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.X.HeaderText = "X";
+            this.X.Name = "X";
+            this.X.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // Y
+            // 
+            this.Y.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Y.HeaderText = "Y";
+            this.Y.Name = "Y";
+            this.Y.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // Width
+            // 
+            this.Width.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Width.HeaderText = "Width";
+            this.Width.Name = "Width";
+            this.Width.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // Height
+            // 
+            this.Height.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Height.HeaderText = "Height";
+            this.Height.Name = "Height";
+            this.Height.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // GlyphWidth
+            // 
+            this.GlyphWidth.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.GlyphWidth.HeaderText = "GlyphWidth";
+            this.GlyphWidth.Name = "GlyphWidth";
+            this.GlyphWidth.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // Character2
+            // 
+            this.Character2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Character2.HeaderText = "Character";
+            this.Character2.Name = "Character2";
+            this.Character2.ReadOnly = true;
+            this.Character2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // ImageID2
+            // 
+            this.ImageID2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.ImageID2.HeaderText = "Image";
+            this.ImageID2.Name = "ImageID2";
+            this.ImageID2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // X2
+            // 
+            this.X2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.X2.HeaderText = "X";
+            this.X2.Name = "X2";
+            this.X2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // Y2
+            // 
+            this.Y2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Y2.HeaderText = "Y";
+            this.Y2.Name = "Y2";
+            this.Y2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // Width2
+            // 
+            this.Width2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Width2.HeaderText = "Width";
+            this.Width2.Name = "Width2";
+            this.Width2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // Height2
+            // 
+            this.Height2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Height2.HeaderText = "Height";
+            this.Height2.Name = "Height2";
+            this.Height2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // GlyphWidth2
+            // 
+            this.GlyphWidth2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.GlyphWidth2.HeaderText = "GlyphWidth";
+            this.GlyphWidth2.Name = "GlyphWidth2";
+            this.GlyphWidth2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
             // Main
             // 
@@ -423,19 +441,21 @@
         private System.Windows.Forms.TextBox searchTextBox2;
         private System.Windows.Forms.Label searchCharLabel1;
         private System.Windows.Forms.Label searchCharLabel2;
+        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn Character;
         private System.Windows.Forms.DataGridViewTextBoxColumn ImageID;
         private System.Windows.Forms.DataGridViewTextBoxColumn X;
         private System.Windows.Forms.DataGridViewTextBoxColumn Y;
         private System.Windows.Forms.DataGridViewTextBoxColumn Width;
         private System.Windows.Forms.DataGridViewTextBoxColumn Height;
+        private System.Windows.Forms.DataGridViewTextBoxColumn GlyphWidth;
         private System.Windows.Forms.DataGridViewTextBoxColumn Character2;
         private System.Windows.Forms.DataGridViewTextBoxColumn ImageID2;
         private System.Windows.Forms.DataGridViewTextBoxColumn X2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Y2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Width2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Height2;
-        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
+        private System.Windows.Forms.DataGridViewTextBoxColumn GlyphWidth2;
     }
 }
 

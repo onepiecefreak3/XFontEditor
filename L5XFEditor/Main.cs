@@ -108,18 +108,28 @@ namespace L5XFEditor
             int id = 0;
             foreach (var character in font.dicGlyphLarge)
             {
-                largeDict.Rows.Add(character.Key, character.Value.ColorChannel,
-                    character.Value.ImageOffsetX, character.Value.ImageOffsetY,
-                    font.lstCharSizeInfoLarge[character.Value.code_point].glyph_width, font.lstCharSizeInfoLarge[character.Value.code_point].glyph_height);
+                largeDict.Rows.Add(
+                    character.Key,
+                    character.Value.ColorChannel,
+                    character.Value.ImageOffsetX,
+                    character.Value.ImageOffsetY,
+                    font.lstCharSizeInfoLarge[character.Value.code_point].char_width,
+                    font.lstCharSizeInfoLarge[character.Value.code_point].char_height,
+                    character.Value.CharWidth);
                 largeDict.Rows[id].HeaderCell.Value = String.Format("{0}", id++);
             }
 
             id = 0;
             foreach (var character in font.dicGlyphSmall)
             {
-                smallDict.Rows.Add(character.Key, character.Value.ColorChannel,
-                    character.Value.ImageOffsetX, character.Value.ImageOffsetY,
-                    font.lstCharSizeInfoSmall[character.Value.code_point].glyph_width, font.lstCharSizeInfoSmall[character.Value.code_point].glyph_height);
+                smallDict.Rows.Add(
+                    character.Key,
+                    character.Value.ColorChannel,
+                    character.Value.ImageOffsetX,
+                    character.Value.ImageOffsetY,
+                    font.lstCharSizeInfoSmall[character.Value.code_point].char_width,
+                    font.lstCharSizeInfoSmall[character.Value.code_point].char_height,
+                    character.Value.CharWidth);
                 smallDict.Rows[id].HeaderCell.Value = String.Format("{0}", id++);
             }
 
@@ -166,14 +176,15 @@ namespace L5XFEditor
                         break;
                 }
 
+                var c = Color.Red;
                 g.DrawRectangle(
-                    new Pen(Color.Red),
-                    new Rectangle(
-                        character.Value.ImageOffsetX,
-                        character.Value.ImageOffsetY,
-                        font.lstCharSizeInfoLarge[character.Value.code_point].glyph_width,
-                        font.lstCharSizeInfoLarge[character.Value.code_point].glyph_height)
-                        );
+                     new Pen(c),
+                     new Rectangle(
+                         character.Value.ImageOffsetX,
+                         character.Value.ImageOffsetY,
+                         font.lstCharSizeInfoLarge[character.Value.code_point].char_width,
+                         font.lstCharSizeInfoLarge[character.Value.code_point].char_height)
+                         );
             }
 
             foreach (var character in font.dicGlyphSmall)
@@ -192,13 +203,14 @@ namespace L5XFEditor
                         break;
                 }
 
+                var c = Color.DarkRed;
                 g.DrawRectangle(
-                    new Pen(Color.DarkRed),
+                    new Pen(c),
                     new Rectangle(
                         character.Value.ImageOffsetX,
                         character.Value.ImageOffsetY,
-                        font.lstCharSizeInfoSmall[character.Value.code_point].glyph_width,
-                        font.lstCharSizeInfoSmall[character.Value.code_point].glyph_height)
+                        font.lstCharSizeInfoSmall[character.Value.code_point].char_width,
+                        font.lstCharSizeInfoSmall[character.Value.code_point].char_height)
                         );
             }
         }
@@ -259,12 +271,12 @@ namespace L5XFEditor
                 new Format.XF.CharacterMap
                 {
                     code_point = Convert.ToChar(glyphRow.Cells["Character"].Value),
-                    char_size = origGlyph.char_size,
+                    char_size = (ushort)((origGlyph.CharSizeInfoIndex & 0x3FF) | ((Convert.ToUInt16(glyphRow.Cells["GlyphWidth"].Value) & 0x3F) << 10)),
                     image_offset = Convert.ToInt32(glyphRow.Cells["ImageID"].Value) | (Convert.ToInt32(glyphRow.Cells["X"].Value) << 4) | (Convert.ToInt32(glyphRow.Cells["Y"].Value) << 18)
                 };
 
-            font.lstCharSizeInfoLarge[origGlyph.code_point].glyph_height = Convert.ToByte(glyphRow.Cells["Height"].Value);
-            font.lstCharSizeInfoLarge[origGlyph.code_point].glyph_width = Convert.ToByte(glyphRow.Cells["Width"].Value);
+            font.lstCharSizeInfoLarge[origGlyph.code_point].char_height = Convert.ToByte(glyphRow.Cells["Height"].Value);
+            font.lstCharSizeInfoLarge[origGlyph.code_point].char_width = Convert.ToByte(glyphRow.Cells["Width"].Value);
 
             LoadImages();
             DrawCharInfo();
@@ -279,12 +291,12 @@ namespace L5XFEditor
                 new Format.XF.CharacterMap
                 {
                     code_point = Convert.ToChar(glyphRow.Cells["Character2"].Value),
-                    char_size = origGlyph.char_size,
+                    char_size = (ushort)((origGlyph.CharSizeInfoIndex & 0x3FF) | ((Convert.ToUInt16(glyphRow.Cells["GlyphWidth2"].Value) & 0x3F) << 10)),
                     image_offset = Convert.ToInt32(glyphRow.Cells["ImageID2"].Value) | (Convert.ToInt32(glyphRow.Cells["X2"].Value) << 4) | (Convert.ToInt32(glyphRow.Cells["Y2"].Value) << 18)
                 };
 
-            font.lstCharSizeInfoSmall[origGlyph.code_point].glyph_height = Convert.ToByte(glyphRow.Cells["Height2"].Value);
-            font.lstCharSizeInfoSmall[origGlyph.code_point].glyph_width = Convert.ToByte(glyphRow.Cells["Width2"].Value);
+            font.lstCharSizeInfoSmall[origGlyph.code_point].char_height = Convert.ToByte(glyphRow.Cells["Height2"].Value);
+            font.lstCharSizeInfoSmall[origGlyph.code_point].char_width = Convert.ToByte(glyphRow.Cells["Width2"].Value);
 
             LoadImages();
             DrawCharInfo();

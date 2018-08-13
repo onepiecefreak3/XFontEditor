@@ -19,18 +19,23 @@ namespace L5XFEditor.Format
         public Bitmap image_2;
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        [DebuggerDisplay("[{offset_x}, {offset_y}, {glyph_width}, {glyph_height}]")]
+        [DebuggerDisplay("[{offset_x}, {offset_y}, {char_width}, {char_height}]")]
         public class CharSizeInfo
         {
             public sbyte offset_x;
             public sbyte offset_y;
-            public byte glyph_width;
-            public byte glyph_height;
+            public byte char_width;
+            public byte char_height;
 
             public override bool Equals(object obj)
             {
-                var csi = (CharSizeInfo)obj;
-                return offset_x == csi.offset_x && offset_y == csi.offset_y && glyph_width == csi.glyph_width && glyph_height == csi.glyph_height;
+                if (obj is CharSizeInfo)
+                {
+                    var csi = (CharSizeInfo)obj;
+                    return offset_x == csi.offset_x && offset_y == csi.offset_y && char_width == csi.char_width && char_height == csi.char_height;
+                }
+
+                return base.Equals(obj);
             }
         }
 
@@ -122,8 +127,8 @@ namespace L5XFEditor.Format
                     {
                         offset_x = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_x,
                         offset_y = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_y,
-                        glyph_width = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].glyph_width,
-                        glyph_height = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].glyph_height
+                        char_width = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_width,
+                        char_height = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_height
                     });
                 }
                 foreach (var dic in dicGlyphSmall)
@@ -132,8 +137,8 @@ namespace L5XFEditor.Format
                     {
                         offset_x = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_x,
                         offset_y = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_y,
-                        glyph_width = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].glyph_width,
-                        glyph_height = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].glyph_height
+                        char_width = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_width,
+                        char_height = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_height
                     });
                 }
                 #endregion
@@ -215,43 +220,6 @@ namespace L5XFEditor.Format
             xpck.Files[1].FileData = ms;
 
             xpck.Save(output);
-        }
-
-        public CharacterMap GetCharacterMap(char c, bool small)
-        {
-            CharacterMap result;
-            if (small == false)
-            {
-                var success = dicGlyphLarge.TryGetValue(c, out result) || dicGlyphLarge.TryGetValue('?', out result);
-            }
-            else
-            {
-                var success = dicGlyphSmall.TryGetValue(c, out result) || dicGlyphSmall.TryGetValue('?', out result);
-            }
-            return result;
-        }
-        public CharSizeInfo GetCharacterInfo(char code, bool small) => (small) ? lstCharSizeInfoSmall[code] : lstCharSizeInfoLarge[code];
-
-        public float DrawCharacter(char c, Color color, Graphics g, float x, float y, bool small)
-        {
-            CharacterMap charMap = GetCharacterMap(c, small);
-            CharSizeInfo charInfo = GetCharacterInfo(charMap.code_point, small);
-
-            var attr = new ImageAttributes();
-            var matrix = Enumerable.Repeat(new float[5], 5).ToArray();
-            matrix[charMap.ColorChannel] = new[] { 0, 0, 0, 1f, 0 };
-            matrix[4] = new[] { color.R / 255f, color.G / 255f, color.B / 255f, 0, 0 };
-            attr.SetColorMatrix(new ColorMatrix(matrix));
-
-            g.DrawImage(bmp,
-                new[] { new PointF(x + charInfo.offset_x, y + charInfo.offset_y),
-                    new PointF(x + charInfo.offset_x + charInfo.glyph_width, y + charInfo.offset_y),
-                    new PointF(x + charInfo.offset_x, y + charInfo.offset_y + charInfo.glyph_height) },
-                new RectangleF(charMap.ImageOffsetX, charMap.ImageOffsetY, charInfo.glyph_width, charInfo.glyph_height),
-                GraphicsUnit.Pixel,
-                attr);
-
-            return x + charMap.CharWidth;
         }
 
         public void Dispose()

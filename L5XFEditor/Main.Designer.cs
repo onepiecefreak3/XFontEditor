@@ -55,6 +55,7 @@
             this.Width = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Height = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.GlyphWidth = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OffsetX = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Character2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ImageID2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.X2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -62,6 +63,7 @@
             this.Width2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Height2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.GlyphWidth2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OffsetX2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.largeDict)).BeginInit();
             this.menuTool.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.smallDict)).BeginInit();
@@ -80,7 +82,8 @@
             this.Y,
             this.Width,
             this.Height,
-            this.GlyphWidth});
+            this.GlyphWidth,
+            this.OffsetX});
             this.largeDict.Location = new System.Drawing.Point(539, 54);
             this.largeDict.Name = "largeDict";
             this.largeDict.Size = new System.Drawing.Size(520, 240);
@@ -167,7 +170,8 @@
             this.Y2,
             this.Width2,
             this.Height2,
-            this.GlyphWidth2});
+            this.GlyphWidth2,
+            this.OffsetX2});
             this.smallDict.Location = new System.Drawing.Point(539, 326);
             this.smallDict.Name = "smallDict";
             this.smallDict.Size = new System.Drawing.Size(520, 240);
@@ -337,6 +341,11 @@
             this.GlyphWidth.Name = "GlyphWidth";
             this.GlyphWidth.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             // 
+            // OffsetX
+            // 
+            this.OffsetX.HeaderText = "OffsetX";
+            this.OffsetX.Name = "OffsetX";
+            // 
             // Character2
             // 
             this.Character2.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -386,6 +395,11 @@
             this.GlyphWidth2.HeaderText = "GlyphWidth";
             this.GlyphWidth2.Name = "GlyphWidth2";
             this.GlyphWidth2.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
+            // OffsetX2
+            // 
+            this.OffsetX2.HeaderText = "OffsetX2";
+            this.OffsetX2.Name = "OffsetX2";
             // 
             // Main
             // 
@@ -449,6 +463,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Width;
         private System.Windows.Forms.DataGridViewTextBoxColumn Height;
         private System.Windows.Forms.DataGridViewTextBoxColumn GlyphWidth;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OffsetX;
         private System.Windows.Forms.DataGridViewTextBoxColumn Character2;
         private System.Windows.Forms.DataGridViewTextBoxColumn ImageID2;
         private System.Windows.Forms.DataGridViewTextBoxColumn X2;
@@ -456,6 +471,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Width2;
         private System.Windows.Forms.DataGridViewTextBoxColumn Height2;
         private System.Windows.Forms.DataGridViewTextBoxColumn GlyphWidth2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn OffsetX2;
     }
 }
 

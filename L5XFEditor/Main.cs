@@ -115,7 +115,8 @@ namespace L5XFEditor
                     character.Value.ImageOffsetY,
                     font.lstCharSizeInfoLarge[character.Value.code_point].char_width,
                     font.lstCharSizeInfoLarge[character.Value.code_point].char_height,
-                    character.Value.CharWidth);
+                    character.Value.CharWidth,
+                    font.lstCharSizeInfoLarge[character.Value.code_point].offset_x);
                 largeDict.Rows[id].HeaderCell.Value = String.Format("{0}", id++);
             }
 
@@ -129,7 +130,8 @@ namespace L5XFEditor
                     character.Value.ImageOffsetY,
                     font.lstCharSizeInfoSmall[character.Value.code_point].char_width,
                     font.lstCharSizeInfoSmall[character.Value.code_point].char_height,
-                    character.Value.CharWidth);
+                    character.Value.CharWidth,
+                    font.lstCharSizeInfoSmall[character.Value.code_point].offset_x);
                 smallDict.Rows[id].HeaderCell.Value = String.Format("{0}", id++);
             }
 
@@ -277,6 +279,7 @@ namespace L5XFEditor
 
             font.lstCharSizeInfoLarge[origGlyph.code_point].char_height = Convert.ToByte(glyphRow.Cells["Height"].Value);
             font.lstCharSizeInfoLarge[origGlyph.code_point].char_width = Convert.ToByte(glyphRow.Cells["Width"].Value);
+            font.lstCharSizeInfoLarge[origGlyph.code_point].offset_x = Convert.ToSByte(glyphRow.Cells["OffsetX"].Value);
 
             LoadImages();
             DrawCharInfo();
@@ -297,6 +300,7 @@ namespace L5XFEditor
 
             font.lstCharSizeInfoSmall[origGlyph.code_point].char_height = Convert.ToByte(glyphRow.Cells["Height2"].Value);
             font.lstCharSizeInfoSmall[origGlyph.code_point].char_width = Convert.ToByte(glyphRow.Cells["Width2"].Value);
+            font.lstCharSizeInfoLarge[origGlyph.code_point].offset_x = Convert.ToSByte(glyphRow.Cells["OffsetX2"].Value);
 
             LoadImages();
             DrawCharInfo();

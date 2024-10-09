@@ -1,14 +1,18 @@
-using System.Runtime.InteropServices;
-using System;
-using System.IO;
-using L5XFEditor.Interface;
+﻿using L5XFEditor.Interface;
 using L5XFEditor.IO;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace L5XFEditor.Format
 {
-    public class XPCKFileInfo : ArchiveFileInfo
+    public class XFSPFileInfo : ArchiveFileInfo
     {
-        public XpckFileInfoEntry Entry;
+        public XfspFileInfoEntry Entry;
 
         public int Write(Stream input, int absDataOffset, int baseDataOffset)
         {
@@ -31,7 +35,7 @@ namespace L5XFEditor.Format
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct XPCKHeader
+    public struct XFSPHeader
     {
         public Magic magic;
         public byte fc1;
@@ -53,9 +57,9 @@ namespace L5XFEditor.Format
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct XpckFileInfoEntry
+    public struct XfspFileInfoEntry
     {
-        public uint crc32;
+        public ushort crc16;
         public ushort nameOffset;
         public ushort tmp;
         public ushort tmp2;

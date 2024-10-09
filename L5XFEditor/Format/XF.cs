@@ -1,230 +1,149 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
+﻿using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using L5XFEditor.IO;
-using L5XFEditor.Compression;
 using System;
+using L5XFEditor.Format.FNT;
+using System.Collections.Generic;
 
 namespace L5XFEditor.Format
 {
     public class XF : IDisposable
     {
-        Bitmap bmp;
-        public Bitmap image_0;
-        public Bitmap image_1;
-        public Bitmap image_2;
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        [DebuggerDisplay("[{offset_x}, {offset_y}, {char_width}, {char_height}]")]
-        public class CharSizeInfo
-        {
-            public sbyte offset_x;
-            public sbyte offset_y;
-            public byte char_width;
-            public byte char_height;
-
-            public override bool Equals(object obj)
-            {
-                if (obj is CharSizeInfo)
-                {
-                    var csi = (CharSizeInfo)obj;
-                    return offset_x == csi.offset_x && offset_y == csi.offset_y && char_width == csi.char_width && char_height == csi.char_height;
-                }
-
-                return base.Equals(obj);
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
-        [DebuggerDisplay("[{code_point}] {ColorChannel}:{ImageOffsetX}:{ImageOffsetY}")]
-        public class CharacterMap
-        {
-            public char code_point;
-            public ushort char_size;
-            public int image_offset;
-
-            public int CharSizeInfoIndex => char_size % 1024;
-            public int CharWidth => char_size / 1024;
-            public int ColorChannel => image_offset % 16;
-            public int ImageOffsetX => image_offset / 16 % 16384;
-            public int ImageOffsetY => image_offset / 16 / 16384;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public class XFHeader
-        {
-            public Magic8 magic;
-            public int unk1;
-            public short unk2;
-            public short unk3;
-            public short unk4;
-            public short unk5;
-            public long zero0;
-
-            public short table0Offset;
-            public short table0EntryCount;
-            public short table1Offset;
-            public short table1EntryCount;
-            public short table2Offset;
-            public short table2EntryCount;
-        }
-
-        public Dictionary<char, CharSizeInfo> lstCharSizeInfoLarge;
-        public Dictionary<char, CharSizeInfo> lstCharSizeInfoSmall;
-        public Dictionary<char, CharacterMap> dicGlyphLarge;
-        public Dictionary<char, CharacterMap> dicGlyphSmall;
-
+        ArchiveType archiveType;
         XPCK xpck;
-        IMGC xi;
-        XFHeader xfheader;
+        XFSP xfsp;
 
-        Level5.Method t0Comp;
-        Level5.Method t1Comp;
-        Level5.Method t2Comp;
+        FontType fontType;
+        FNT00 fnt00;
+        FNT01 fnt01;
+
+        IMGC xi;
+
+        public Dictionary<ushort, object> CharSizeInfosLarge => fnt00?.lstCharSizeInfoLarge ?? fnt01.lstCharSizeInfoLarge;
+        public Dictionary<ushort, object> CharSizeInfosSmall => fnt00?.lstCharSizeInfoSmall ?? fnt01.lstCharSizeInfoSmall;
+        public Dictionary<ushort, object> GlyphsLarge => fnt00?.dicGlyphLarge ?? fnt01.dicGlyphLarge;
+        public Dictionary<ushort, object> GlyphsSmall => fnt00?.dicGlyphSmall ?? fnt01.dicGlyphSmall;
+        public Bitmap[] Images => fnt00?.Images ?? fnt01.Images;
 
         public XF(Stream input)
         {
-            using (var br = new BinaryReaderX(input))
+            // Read archive
+            archiveType = ArchiveHelper.PeekArchiveType(input);
+
+            Stream fntFile;
+            switch (archiveType)
             {
-                xpck = new XPCK(input);
+                case ArchiveType.Xpck:
+                    xpck = new XPCK(input);
+                    xi = new IMGC(xpck.Files[0].FileData);
+                    fntFile = xpck.Files[1].FileData;
+                    break;
 
-                //get xi image to bmp
-                xi = new IMGC(xpck.Files[0].FileData);
-                bmp = xi.Image;
+                case ArchiveType.Xfsp:
+                    xfsp = new XFSP(input);
+                    xi = new IMGC(xfsp.Files[0].FileData);
+                    fntFile = xfsp.Files[1].FileData;
+                    break;
 
-                //decompress fnt.bin
-                var tempCharSizeInfo = new List<CharSizeInfo>();
-                using (var fntR = new BinaryReaderX(xpck.Files[1].FileData, true))
-                {
-                    xfheader = fntR.ReadStruct<XFHeader>();
+                default:
+                    throw new InvalidOperationException($"Unsupported archive format {archiveType}.");
+            }
 
-                    fntR.BaseStream.Position = xfheader.table0Offset << 2;
-                    t0Comp = (Level5.Method)(fntR.ReadInt32() & 0x7);
-                    fntR.BaseStream.Position -= 4;
-                    tempCharSizeInfo = new BinaryReaderX(new MemoryStream(Level5.Decompress(fntR.BaseStream))).ReadMultiple<CharSizeInfo>(xfheader.table0EntryCount);
+            // Read FNT
+            fontType = FontHelper.PeekFontType(fntFile);
 
-                    fntR.BaseStream.Position = xfheader.table1Offset << 2;
-                    t1Comp = (Level5.Method)(fntR.ReadInt32() & 0x7);
-                    fntR.BaseStream.Position -= 4;
-                    dicGlyphLarge = new BinaryReaderX(new MemoryStream(Level5.Decompress(fntR.BaseStream))).ReadMultiple<CharacterMap>(xfheader.table1EntryCount).ToDictionary(x => x.code_point);
+            switch (fontType)
+            {
+                case FontType.Xf00:
+                    fnt00 = new FNT00(fntFile, xi.Image);
+                    break;
 
-                    fntR.BaseStream.Position = xfheader.table2Offset << 2;
-                    t2Comp = (Level5.Method)(fntR.ReadInt32() & 0x7);
-                    fntR.BaseStream.Position -= 4;
-                    dicGlyphSmall = new BinaryReaderX(new MemoryStream(Level5.Decompress(fntR.BaseStream))).ReadMultiple<CharacterMap>(xfheader.table2EntryCount).ToDictionary(x => x.code_point);
-                }
+                case FontType.Xf01:
+                    fnt01 = new FNT01(fntFile, xi.Image);
+                    break;
 
-                #region Expand charsizeinfo
-                lstCharSizeInfoLarge = new Dictionary<char, CharSizeInfo>();
-                lstCharSizeInfoSmall = new Dictionary<char, CharSizeInfo>();
-                foreach (var dic in dicGlyphLarge)
-                {
-                    lstCharSizeInfoLarge.Add(dic.Value.code_point, new CharSizeInfo
-                    {
-                        offset_x = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_x,
-                        offset_y = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_y,
-                        char_width = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_width,
-                        char_height = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_height
-                    });
-                }
-                foreach (var dic in dicGlyphSmall)
-                {
-                    lstCharSizeInfoSmall.Add(dic.Value.code_point, new CharSizeInfo
-                    {
-                        offset_x = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_x,
-                        offset_y = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].offset_y,
-                        char_width = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_width,
-                        char_height = tempCharSizeInfo[dic.Value.CharSizeInfoIndex].char_height
-                    });
-                }
-                #endregion
-
-                var bmpInfo = new BitmapInfo(bmp);
-
-                image_0 = bmpInfo.CreateChannelBitmap(BitmapInfo.Channel.Red);
-                image_1 = bmpInfo.CreateChannelBitmap(BitmapInfo.Channel.Green);
-                image_2 = bmpInfo.CreateChannelBitmap(BitmapInfo.Channel.Blue);
+                default:
+                    throw new InvalidOperationException($"Unsupported font format {fontType}.");
             }
         }
 
         public void Save(Stream output)
         {
-            //Update image
-            #region  Compiling and saving new image
-            var img = new MemoryStream();
-            var i0a = new BitmapInfo(image_0).pixelMap(BitmapInfo.Channel.Alpha);
-            var i1a = new BitmapInfo(image_1).pixelMap(BitmapInfo.Channel.Alpha);
-            var i2a = new BitmapInfo(image_2).pixelMap(BitmapInfo.Channel.Alpha);
-
-            bmp = new Bitmap(bmp.Width, bmp.Height);
-            for (int y = 0; y < bmp.Height; y++)
-                for (int x = 0; x < bmp.Width; x++)
-                    bmp.SetPixel(x, y, Color.FromArgb(255, i0a[x, y], i1a[x, y], i2a[x, y]));
-
-            xi.Image = bmp;
-            xi.Save(img);
-            xpck.Files[0].FileData = img;
-            #endregion
-
-            //Compact charSizeInfo
-            var compactCharSizeInfo = new List<CharSizeInfo>();
-            #region Compacting and updating dictionaries
-            foreach (var info in lstCharSizeInfoLarge)
-                if (compactCharSizeInfo.Contains(info.Value))
-                    dicGlyphLarge[info.Key].char_size = (ushort)(compactCharSizeInfo.FindIndex(c => c.Equals(info.Value)) % 1024 + dicGlyphLarge[info.Key].CharWidth * 1024);
-                else
-                {
-                    dicGlyphLarge[info.Key].char_size = (ushort)(compactCharSizeInfo.Count % 1024 + dicGlyphLarge[info.Key].CharWidth * 1024);
-                    compactCharSizeInfo.Add(info.Value);
-                }
-            foreach (var info in lstCharSizeInfoSmall)
-                if (compactCharSizeInfo.Contains(info.Value))
-                    dicGlyphSmall[info.Key].char_size = (ushort)(compactCharSizeInfo.FindIndex(c => c.Equals(info.Value)) % 1024 + dicGlyphSmall[info.Key].CharWidth * 1024);
-                else
-                {
-                    dicGlyphSmall[info.Key].char_size = (ushort)(compactCharSizeInfo.Count % 1024 + dicGlyphSmall[info.Key].CharWidth * 1024);
-                    compactCharSizeInfo.Add(info.Value);
-                }
-            #endregion
-
-            //Writing
-            var ms = new MemoryStream();
-            using (var bw = new BinaryWriterX(ms, true))
+            byte[][,] alphaMaps;
+            switch (fontType)
             {
-                //Table0
-                xfheader.table0EntryCount = (short)compactCharSizeInfo.Count;
-                bw.BaseStream.Position = 0x28;
-                bw.WriteMultipleCompressed(compactCharSizeInfo, t0Comp);
-                bw.WriteAlignment(4);
+                case FontType.Xf00:
+                    alphaMaps = new byte[][,]
+                    {
+                        new BitmapInfo(fnt00.Images[0]).pixelMap(BitmapInfo.Channel.Alpha),
+                        new BitmapInfo(fnt00.Images[1]).pixelMap(BitmapInfo.Channel.Alpha),
+                        new BitmapInfo(fnt00.Images[2]).pixelMap(BitmapInfo.Channel.Alpha)
+                    };
+                    break;
 
-                //Table1
-                xfheader.table1Offset = (short)(bw.BaseStream.Position >> 2);
-                xfheader.table1EntryCount = (short)dicGlyphLarge.Count;
-                bw.WriteMultipleCompressed(dicGlyphLarge.Select(d => d.Value), t1Comp);
-                bw.WriteAlignment(4);
+                case FontType.Xf01:
+                    alphaMaps = new byte[][,]
+                    {
+                        new BitmapInfo(fnt01.Images[0]).pixelMap(BitmapInfo.Channel.Alpha),
+                        new BitmapInfo(fnt01.Images[1]).pixelMap(BitmapInfo.Channel.Alpha),
+                        new BitmapInfo(fnt01.Images[2]).pixelMap(BitmapInfo.Channel.Alpha)
+                    };
+                    break;
 
-                //Table2
-                xfheader.table2Offset = (short)(bw.BaseStream.Position >> 2);
-                xfheader.table2EntryCount = (short)dicGlyphSmall.Count;
-                bw.WriteMultipleCompressed(dicGlyphSmall.Select(d => d.Value), t2Comp);
-                bw.WriteAlignment(4);
-
-                //Header
-                bw.BaseStream.Position = 0;
-                bw.WriteStruct(xfheader);
+                default:
+                    // Should never occur
+                    return;
             }
-            xpck.Files[1].FileData = ms;
 
-            xpck.Save(output);
+            // Update image
+            var img = new MemoryStream();
+
+            xi.Image = new Bitmap(xi.Image.Width, xi.Image.Height);
+            for (var y = 0; y < xi.Image.Height; y++)
+                for (var x = 0; x < xi.Image.Width; x++)
+                    xi.Image.SetPixel(x, y, Color.FromArgb(255, alphaMaps[0][x, y], alphaMaps[1][x, y], alphaMaps[2][x, y]));
+
+            xi.Save(img);
+
+            // Update font
+            var font = new MemoryStream();
+
+            switch (fontType)
+            {
+                case FontType.Xf00:
+                    fnt00.Save(font);
+                    break;
+
+                case FontType.Xf01:
+                    fnt01.Save(font);
+                    break;
+
+                default:
+                    // Should never occur
+                    return;
+            }
+
+            // Update archive
+            switch (archiveType)
+            {
+                case ArchiveType.Xpck:
+                    xpck.Files[0].FileData = img;
+                    xpck.Files[1].FileData = font;
+                    xpck.Save(output);
+                    break;
+
+                case ArchiveType.Xfsp:
+                    xfsp.Files[0].FileData = img;
+                    xfsp.Files[1].FileData = font;
+                    xfsp.Save(output);
+                    break;
+            }
         }
 
         public void Dispose()
         {
-            xpck.Close();
+            xpck?.Close();
+            xfsp?.Close();
             xi = null;
         }
     }

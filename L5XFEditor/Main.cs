@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using L5XFEditor.Format.FNT;
 
 namespace L5XFEditor
 {
@@ -70,9 +65,9 @@ namespace L5XFEditor
             if (fd.ShowDialog() == DialogResult.OK)
             {
                 //Extract images
-                font.image_0.Save(Path.Combine(fd.SelectedPath, "font_image0.png"));
-                font.image_1.Save(Path.Combine(fd.SelectedPath, "font_image1.png"));
-                font.image_2.Save(Path.Combine(fd.SelectedPath, "font_image2.png"));
+                font.Images[0].Save(Path.Combine(fd.SelectedPath, "font_image0.png"));
+                font.Images[1].Save(Path.Combine(fd.SelectedPath, "font_image1.png"));
+                font.Images[2].Save(Path.Combine(fd.SelectedPath, "font_image2.png"));
             }
         }
 
@@ -84,11 +79,11 @@ namespace L5XFEditor
             {
                 //Import images
                 if (File.Exists(Path.Combine(fd.SelectedPath, "font_image0.png")))
-                    font.image_0 = new Bitmap(Path.Combine(fd.SelectedPath, "font_image0.png"));
+                    font.Images[0] = new Bitmap(Path.Combine(fd.SelectedPath, "font_image0.png"));
                 if (File.Exists(Path.Combine(fd.SelectedPath, "font_image1.png")))
-                    font.image_1 = new Bitmap(Path.Combine(fd.SelectedPath, "font_image1.png"));
+                    font.Images[1] = new Bitmap(Path.Combine(fd.SelectedPath, "font_image1.png"));
                 if (File.Exists(Path.Combine(fd.SelectedPath, "font_image2.png")))
-                    font.image_2 = new Bitmap(Path.Combine(fd.SelectedPath, "font_image2.png"));
+                    font.Images[2] = new Bitmap(Path.Combine(fd.SelectedPath, "font_image2.png"));
 
                 LoadImages();
                 DrawCharInfo();
@@ -106,32 +101,92 @@ namespace L5XFEditor
             smallDict.Rows.Clear();
 
             int id = 0;
-            foreach (var character in font.dicGlyphLarge)
+            foreach (var character in font.GlyphsLarge)
             {
+                ushort codePoint;
+                int colorChannel;
+                int imageX, imageY;
+                int glyphWidth, glyphHeight;
+                int charWidth;
+                int offsetX;
+
+                if (character.Value is XF01CharacterMap xf01CharMap)
+                {
+                    codePoint = character.Key;
+                    colorChannel = xf01CharMap.ColorChannel;
+                    imageX = xf01CharMap.ImageOffsetX;
+                    imageY = xf01CharMap.ImageOffsetY;
+                    glyphWidth = ((XF01CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_width;
+                    glyphHeight = ((XF01CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_height;
+                    charWidth = xf01CharMap.CharWidth;
+                    offsetX = ((XF01CharSizeInfo)font.CharSizeInfosLarge[character.Key]).offset_x;
+                }
+                else
+                {
+                    codePoint = character.Key;
+                    colorChannel = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).ColorChannel;
+                    imageX = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).ImageOffsetX;
+                    imageY = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).ImageOffsetY;
+                    glyphWidth = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_width;
+                    glyphHeight = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_height;
+                    charWidth = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).CharWidth;
+                    offsetX = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).offset_x;
+                }
+
                 largeDict.Rows.Add(
-                    character.Key,
-                    character.Value.ColorChannel,
-                    character.Value.ImageOffsetX,
-                    character.Value.ImageOffsetY,
-                    font.lstCharSizeInfoLarge[character.Value.code_point].char_width,
-                    font.lstCharSizeInfoLarge[character.Value.code_point].char_height,
-                    character.Value.CharWidth,
-                    font.lstCharSizeInfoLarge[character.Value.code_point].offset_x);
+                    (char)codePoint,
+                    colorChannel,
+                    imageX,
+                    imageY,
+                    glyphWidth,
+                    glyphHeight,
+                    charWidth,
+                    offsetX);
                 largeDict.Rows[id].HeaderCell.Value = String.Format("{0}", id++);
             }
 
             id = 0;
-            foreach (var character in font.dicGlyphSmall)
+            foreach (var character in font.GlyphsSmall)
             {
+                ushort codePoint;
+                int colorChannel;
+                int imageX, imageY;
+                int glyphWidth, glyphHeight;
+                int charWidth;
+                int offsetX;
+
+                if (character.Value is XF01CharacterMap xf01CharMap)
+                {
+                    codePoint = character.Key;
+                    colorChannel = xf01CharMap.ColorChannel;
+                    imageX = xf01CharMap.ImageOffsetX;
+                    imageY = xf01CharMap.ImageOffsetY;
+                    glyphWidth = ((XF01CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_width;
+                    glyphHeight = ((XF01CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_height;
+                    charWidth = xf01CharMap.CharWidth;
+                    offsetX = ((XF01CharSizeInfo)font.CharSizeInfosSmall[character.Key]).offset_x;
+                }
+                else
+                {
+                    codePoint = character.Key;
+                    colorChannel = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).ColorChannel;
+                    imageX = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).ImageOffsetX;
+                    imageY = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).ImageOffsetY;
+                    glyphWidth = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_width;
+                    glyphHeight = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_height;
+                    charWidth = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).CharWidth;
+                    offsetX = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).offset_x;
+                }
+
                 smallDict.Rows.Add(
-                    character.Key,
-                    character.Value.ColorChannel,
-                    character.Value.ImageOffsetX,
-                    character.Value.ImageOffsetY,
-                    font.lstCharSizeInfoSmall[character.Value.code_point].char_width,
-                    font.lstCharSizeInfoSmall[character.Value.code_point].char_height,
-                    character.Value.CharWidth,
-                    font.lstCharSizeInfoSmall[character.Value.code_point].offset_x);
+                    (char)codePoint,
+                    colorChannel,
+                    imageX,
+                    imageY,
+                    glyphWidth,
+                    glyphHeight,
+                    charWidth,
+                    offsetX);
                 smallDict.Rows[id].HeaderCell.Value = String.Format("{0}", id++);
             }
 
@@ -141,31 +196,47 @@ namespace L5XFEditor
 
         void LoadImages()
         {
-            image0.Image = new Bitmap(font.image_0.Width, font.image_0.Height);
-            image1.Image = new Bitmap(font.image_1.Width, font.image_1.Height);
-            image2.Image = new Bitmap(font.image_2.Width, font.image_2.Height);
+            image0.Image = new Bitmap(font.Images[0].Width, font.Images[0].Height);
+            image1.Image = new Bitmap(font.Images[1].Width, font.Images[1].Height);
+            image2.Image = new Bitmap(font.Images[2].Width, font.Images[2].Height);
 
-            Graphics g;
-
-            g = Graphics.FromImage(image0.Image);
-            //g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, image0.Image.Width, image0.Image.Height));
-            g.DrawImage(font.image_0, new PointF(0, 0));
+            Graphics g = Graphics.FromImage(image0.Image);
+            g.DrawImage(font.Images[0], new PointF(0, 0));
 
             g = Graphics.FromImage(image1.Image);
-            //g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, image1.Image.Width, image1.Image.Height));
-            g.DrawImage(font.image_1, new PointF(0, 0));
+            g.DrawImage(font.Images[1], new PointF(0, 0));
 
             g = Graphics.FromImage(image2.Image);
-            //g.FillRectangle(new SolidBrush(Color.Black), new Rectangle(0, 0, image2.Image.Width, image2.Image.Height));
-            g.DrawImage(font.image_2, new PointF(0, 0));
+            g.DrawImage(font.Images[2], new PointF(0, 0));
         }
 
         void DrawCharInfo()
         {
-            foreach (var character in font.dicGlyphLarge)
+            int colorChannel;
+            int imageX, imageY;
+            int glyphWidth, glyphHeight;
+
+            foreach (var character in font.GlyphsLarge)
             {
+                if (character.Value is XF01CharacterMap xf01CharMap)
+                {
+                    colorChannel = xf01CharMap.ColorChannel;
+                    imageX = xf01CharMap.ImageOffsetX;
+                    imageY = xf01CharMap.ImageOffsetY;
+                    glyphWidth = ((XF01CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_width;
+                    glyphHeight = ((XF01CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_height;
+                }
+                else
+                {
+                    colorChannel = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).ColorChannel;
+                    imageX = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).ImageOffsetX;
+                    imageY = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).ImageOffsetY;
+                    glyphWidth = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_width;
+                    glyphHeight = ((XF00CharSizeInfo)font.CharSizeInfosLarge[character.Key]).char_height;
+                }
+
                 Graphics g = null;
-                switch (character.Value.ColorChannel)
+                switch (colorChannel)
                 {
                     case 0:
                         g = Graphics.FromImage(image0.Image);
@@ -179,20 +250,30 @@ namespace L5XFEditor
                 }
 
                 var c = Color.Red;
-                g.DrawRectangle(
-                     new Pen(c),
-                     new Rectangle(
-                         character.Value.ImageOffsetX,
-                         character.Value.ImageOffsetY,
-                         font.lstCharSizeInfoLarge[character.Value.code_point].char_width,
-                         font.lstCharSizeInfoLarge[character.Value.code_point].char_height)
-                         );
+                g.DrawRectangle(new Pen(c), new Rectangle(imageX, imageY, glyphWidth, glyphHeight));
             }
 
-            foreach (var character in font.dicGlyphSmall)
+            foreach (var character in font.GlyphsSmall)
             {
+                if (character.Value is XF01CharacterMap xf01CharMap)
+                {
+                    colorChannel = xf01CharMap.ColorChannel;
+                    imageX = xf01CharMap.ImageOffsetX;
+                    imageY = xf01CharMap.ImageOffsetY;
+                    glyphWidth = ((XF01CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_width;
+                    glyphHeight = ((XF01CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_height;
+                }
+                else
+                {
+                    colorChannel = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).ColorChannel;
+                    imageX = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).ImageOffsetX;
+                    imageY = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).ImageOffsetY;
+                    glyphWidth = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_width;
+                    glyphHeight = ((XF00CharSizeInfo)font.CharSizeInfosSmall[character.Key]).char_height;
+                }
+
                 Graphics g = null;
-                switch (character.Value.ColorChannel)
+                switch (colorChannel)
                 {
                     case 0:
                         g = Graphics.FromImage(image0.Image);
@@ -206,14 +287,7 @@ namespace L5XFEditor
                 }
 
                 var c = Color.DarkRed;
-                g.DrawRectangle(
-                    new Pen(c),
-                    new Rectangle(
-                        character.Value.ImageOffsetX,
-                        character.Value.ImageOffsetY,
-                        font.lstCharSizeInfoSmall[character.Value.code_point].char_width,
-                        font.lstCharSizeInfoSmall[character.Value.code_point].char_height)
-                        );
+                g.DrawRectangle(new Pen(c), new Rectangle(imageX, imageY, glyphWidth, glyphHeight));
             }
         }
         #endregion
@@ -267,19 +341,51 @@ namespace L5XFEditor
         private void largeDict_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             var glyphRow = largeDict.Rows[e.RowIndex];
-            var origGlyph = font.dicGlyphLarge[Convert.ToChar(glyphRow.Cells["Character"].Value)];
 
-            font.dicGlyphLarge[Convert.ToChar(glyphRow.Cells["Character"].Value)] =
-                new Format.XF.CharacterMap
+            ushort codePoint = Convert.ToChar(glyphRow.Cells["Character"].Value);
+            var origGlyph = font.GlyphsLarge[codePoint];
+
+            int colorChannel = Convert.ToInt32(glyphRow.Cells["ImageID"].Value);
+            int imageX = Convert.ToInt32(glyphRow.Cells["X"].Value);
+            int imageY = Convert.ToInt32(glyphRow.Cells["Y"].Value);
+            int glyphWidth = Convert.ToUInt16(glyphRow.Cells["GlyphWidth"].Value);
+
+            if (origGlyph is XF01CharacterMap xf01CharMap)
+            {
+                font.GlyphsLarge[codePoint] = new XF01CharacterMap
                 {
-                    code_point = Convert.ToChar(glyphRow.Cells["Character"].Value),
-                    char_size = (ushort)((origGlyph.CharSizeInfoIndex & 0x3FF) | ((Convert.ToUInt16(glyphRow.Cells["GlyphWidth"].Value) & 0x3F) << 10)),
-                    image_offset = Convert.ToInt32(glyphRow.Cells["ImageID"].Value) | (Convert.ToInt32(glyphRow.Cells["X"].Value) << 4) | (Convert.ToInt32(glyphRow.Cells["Y"].Value) << 18)
+                    code_point = codePoint,
+                    char_size = (ushort)(xf01CharMap.CharSizeInfoIndex | ((glyphWidth & 0x3F) << 10)),
+                    image_offset = colorChannel | (imageX << 4) | (imageY << 18)
                 };
+            }
 
-            font.lstCharSizeInfoLarge[origGlyph.code_point].char_height = Convert.ToByte(glyphRow.Cells["Height"].Value);
-            font.lstCharSizeInfoLarge[origGlyph.code_point].char_width = Convert.ToByte(glyphRow.Cells["Width"].Value);
-            font.lstCharSizeInfoLarge[origGlyph.code_point].offset_x = Convert.ToSByte(glyphRow.Cells["OffsetX"].Value);
+            var glyphSize = font.CharSizeInfosLarge[codePoint];
+            byte charWidth = Convert.ToByte(glyphRow.Cells["Height"].Value);
+            byte charHeight = Convert.ToByte(glyphRow.Cells["Width"].Value);
+            sbyte offsetX = Convert.ToSByte(glyphRow.Cells["OffsetX"].Value);
+
+            if (glyphSize is XF01CharSizeInfo xf01CharSize)
+            {
+                font.CharSizeInfosLarge[codePoint] = new XF01CharSizeInfo
+                {
+                    char_width = charWidth,
+                    char_height = charHeight,
+                    offset_x = offsetX,
+                    offset_y = xf01CharSize.offset_y
+                };
+            }
+            else
+            {
+                font.CharSizeInfosLarge[codePoint] = new XF00CharSizeInfo
+                {
+                    char_width = charWidth,
+                    char_height = charHeight,
+                    offset_x = offsetX,
+                    offset_y = ((XF00CharSizeInfo)font.CharSizeInfosLarge[codePoint]).offset_y,
+                    image_info = (uint)(((imageY & 0x3FF) << 22) | ((imageX & 0x3FF) << 12) | ((colorChannel & 0xF) << 8) | (glyphWidth & 0xFF))
+                };
+            }
 
             LoadImages();
             DrawCharInfo();
@@ -288,19 +394,51 @@ namespace L5XFEditor
         private void smallDict_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             var glyphRow = smallDict.Rows[e.RowIndex];
-            var origGlyph = font.dicGlyphSmall[Convert.ToChar(glyphRow.Cells["Character2"].Value)];
 
-            font.dicGlyphLarge[Convert.ToChar(glyphRow.Cells["Character2"].Value)] =
-                new Format.XF.CharacterMap
+            ushort codePoint = Convert.ToChar(glyphRow.Cells["Character"].Value);
+            var origGlyph = font.GlyphsSmall[codePoint];
+
+            int colorChannel = Convert.ToInt32(glyphRow.Cells["ImageID"].Value);
+            int imageX = Convert.ToInt32(glyphRow.Cells["X"].Value);
+            int imageY = Convert.ToInt32(glyphRow.Cells["Y"].Value);
+            int glyphWidth = Convert.ToUInt16(glyphRow.Cells["GlyphWidth"].Value);
+
+            if (origGlyph is XF01CharacterMap xf01CharMap)
+            {
+                font.GlyphsSmall[codePoint] = new XF01CharacterMap
                 {
-                    code_point = Convert.ToChar(glyphRow.Cells["Character2"].Value),
-                    char_size = (ushort)((origGlyph.CharSizeInfoIndex & 0x3FF) | ((Convert.ToUInt16(glyphRow.Cells["GlyphWidth2"].Value) & 0x3F) << 10)),
-                    image_offset = Convert.ToInt32(glyphRow.Cells["ImageID2"].Value) | (Convert.ToInt32(glyphRow.Cells["X2"].Value) << 4) | (Convert.ToInt32(glyphRow.Cells["Y2"].Value) << 18)
+                    code_point = codePoint,
+                    char_size = (ushort)(xf01CharMap.CharSizeInfoIndex | ((glyphWidth & 0x3F) << 10)),
+                    image_offset = colorChannel | (imageX << 4) | (imageY << 18)
                 };
+            }
 
-            font.lstCharSizeInfoSmall[origGlyph.code_point].char_height = Convert.ToByte(glyphRow.Cells["Height2"].Value);
-            font.lstCharSizeInfoSmall[origGlyph.code_point].char_width = Convert.ToByte(glyphRow.Cells["Width2"].Value);
-            font.lstCharSizeInfoLarge[origGlyph.code_point].offset_x = Convert.ToSByte(glyphRow.Cells["OffsetX2"].Value);
+            var glyphSize = font.CharSizeInfosSmall[codePoint];
+            byte charWidth = Convert.ToByte(glyphRow.Cells["Height"].Value);
+            byte charHeight = Convert.ToByte(glyphRow.Cells["Width"].Value);
+            sbyte offsetX = Convert.ToSByte(glyphRow.Cells["OffsetX"].Value);
+
+            if (glyphSize is XF01CharSizeInfo xf01CharSize)
+            {
+                font.CharSizeInfosSmall[codePoint] = new XF01CharSizeInfo
+                {
+                    char_width = charWidth,
+                    char_height = charHeight,
+                    offset_x = offsetX,
+                    offset_y = xf01CharSize.offset_y
+                };
+            }
+            else
+            {
+                font.CharSizeInfosSmall[codePoint] = new XF00CharSizeInfo
+                {
+                    char_width = charWidth,
+                    char_height = charHeight,
+                    offset_x = offsetX,
+                    offset_y = ((XF00CharSizeInfo)font.CharSizeInfosSmall[codePoint]).offset_y,
+                    image_info = (uint)(((imageY & 0x3FF) << 22) | ((imageX & 0x3FF) << 12) | ((colorChannel & 0xF) << 8) | (glyphWidth & 0xFF))
+                };
+            }
 
             LoadImages();
             DrawCharInfo();

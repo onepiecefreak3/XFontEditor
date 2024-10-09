@@ -1,32 +1,35 @@
+﻿using L5XFEditor.Compression;
+using L5XFEditor.Interface;
+using L5XFEditor.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using L5XFEditor.IO;
-using L5XFEditor.Compression;
-using L5XFEditor.Interface;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace L5XFEditor.Format
 {
-    public sealed class XPCK
+    public sealed class XFSP
     {
-        public List<XPCKFileInfo> Files = new List<XPCKFileInfo>();
+        public List<XFSPFileInfo> Files = new List<XFSPFileInfo>();
         Stream _stream = null;
 
-        XPCKHeader header;
-        List<XpckFileInfoEntry> entries = new List<XpckFileInfoEntry>();
+        XFSPHeader header;
+        List<XfspFileInfoEntry> entries = new List<XfspFileInfoEntry>();
         byte[] compNameTable;
 
-        public XPCK(Stream input)
+        public XFSP(Stream input)
         {
             _stream = input;
             using (var br = new BinaryReaderX(input, true))
             {
                 //Header
-                header = br.ReadStruct<XPCKHeader>();
+                header = br.ReadStruct<XFSPHeader>();
 
                 //Entries
                 br.BaseStream.Position = header.fileInfoOffset;
-                entries.AddRange(br.ReadMultiple<XpckFileInfoEntry>(header.fileCount));
+                entries.AddRange(br.ReadMultiple<XfspFileInfoEntry>(header.fileCount));
 
                 //Filenames
                 br.BaseStream.Position = header.filenameTableOffset;
@@ -38,7 +41,7 @@ namespace L5XFEditor.Format
                     for (int i = 0; i < entries.Count; i++)
                     {
                         nameList.BaseStream.Position = entries[i].nameOffset;
-                        Files.Add(new XPCKFileInfo
+                        Files.Add(new XFSPFileInfo
                         {
                             State = ArchiveFileState.Archived,
                             FileName = nameList.ReadCStringA(),
@@ -60,7 +63,7 @@ namespace L5XFEditor.Format
                 var dataOffset = absDataOffset;
                 foreach (var file in files)
                 {
-                    dataOffset=file.Write(bw.BaseStream, dataOffset, absDataOffset);
+                    dataOffset = file.Write(bw.BaseStream, dataOffset, absDataOffset);
                 }
 
                 //Entries

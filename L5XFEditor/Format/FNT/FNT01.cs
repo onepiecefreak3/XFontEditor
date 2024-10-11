@@ -39,13 +39,29 @@ namespace L5XFEditor.Format.FNT
                 t1Comp = (Level5.Method)(fntR.ReadInt32() & 0x7);
                 fntR.BaseStream.Position -= 4;
                 decompressed = new MemoryStream(Level5.Decompress(fntR.BaseStream));
-                dicGlyphLarge = new BinaryReaderX(decompressed).ReadMultiple<XF01CharacterMap>(xf1header.table1EntryCount).ToDictionary(x => x.code_point, y => (object)y);
+                var largeChars = new BinaryReaderX(decompressed).ReadMultiple<XF01CharacterMap>(xf1header.table1EntryCount);
+                dicGlyphLarge = new Dictionary<ushort, object>();
+                foreach (XF01CharacterMap largeChar in largeChars)
+                {
+                    if (dicGlyphLarge.ContainsKey(largeChar.code_point))
+                        continue;
+
+                    dicGlyphLarge[largeChar.code_point] = largeChar;
+                }
 
                 fntR.BaseStream.Position = xf1header.table2Offset << 2;
                 t2Comp = (Level5.Method)(fntR.ReadInt32() & 0x7);
                 fntR.BaseStream.Position -= 4;
                 decompressed = new MemoryStream(Level5.Decompress(fntR.BaseStream));
-                dicGlyphSmall = new BinaryReaderX(decompressed).ReadMultiple<XF01CharacterMap>(xf1header.table2EntryCount).ToDictionary(x => x.code_point, y => (object)y);
+                var smallChars = new BinaryReaderX(decompressed).ReadMultiple<XF01CharacterMap>(xf1header.table2EntryCount);
+                dicGlyphSmall = new Dictionary<ushort, object>();
+                foreach (XF01CharacterMap smallChar in smallChars)
+                {
+                    if (dicGlyphSmall.ContainsKey(smallChar.code_point))
+                        continue;
+
+                    dicGlyphSmall[smallChar.code_point] = smallChar;
+                }
             }
             
             lstCharSizeInfoLarge = new Dictionary<ushort, object>();

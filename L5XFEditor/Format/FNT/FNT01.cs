@@ -103,7 +103,7 @@ namespace L5XFEditor.Format.FNT
 
         public void Save(Stream output)
         {
-            var compactCharSizeInfo = new List<XF01CharSizeInfo>();
+            var compactCharSizeInfo = new List<object>();
             foreach (var info in lstCharSizeInfoLarge)
             {
                 var glyph = (XF01CharacterMap)dicGlyphLarge[info.Key];
@@ -118,7 +118,7 @@ namespace L5XFEditor.Format.FNT
                     glyph.char_size =
                         (ushort)(compactCharSizeInfo.Count % 1024 + glyph.CharWidth * 1024);
 
-                    compactCharSizeInfo.Add((XF01CharSizeInfo)info.Value);
+                    compactCharSizeInfo.Add(info.Value);
                 }
             }
 
@@ -136,7 +136,7 @@ namespace L5XFEditor.Format.FNT
                     glyph.char_size =
                         (ushort)(compactCharSizeInfo.Count % 1024 + glyph.CharWidth * 1024);
 
-                    compactCharSizeInfo.Add((XF01CharSizeInfo)info.Value);
+                    compactCharSizeInfo.Add(info.Value);
                 }
             }
 
@@ -146,19 +146,19 @@ namespace L5XFEditor.Format.FNT
                 // Table 0
                 xf1header.table0EntryCount = (short)compactCharSizeInfo.Count;
                 bw.BaseStream.Position = 0x28;
-                bw.WriteMultipleCompressed(compactCharSizeInfo, t0Comp);
+                bw.WriteMultipleCompressed(compactCharSizeInfo.Cast<XF01CharSizeInfo>(), t0Comp);
                 bw.WriteAlignment(4);
 
                 // Table 1
                 xf1header.table1Offset = (short)(bw.BaseStream.Position >> 2);
                 xf1header.table1EntryCount = (short)dicGlyphLarge.Count;
-                bw.WriteMultipleCompressed(dicGlyphLarge.Select(d => d.Value), t1Comp);
+                bw.WriteMultipleCompressed(dicGlyphLarge.Select(d => (XF01CharacterMap)d.Value), t1Comp);
                 bw.WriteAlignment(4);
 
                 // Table 2
                 xf1header.table2Offset = (short)(bw.BaseStream.Position >> 2);
                 xf1header.table2EntryCount = (short)dicGlyphSmall.Count;
-                bw.WriteMultipleCompressed(dicGlyphSmall.Select(d => d.Value), t2Comp);
+                bw.WriteMultipleCompressed(dicGlyphSmall.Select(d => (XF01CharacterMap)d.Value), t2Comp);
                 bw.WriteAlignment(4);
 
                 // Header
